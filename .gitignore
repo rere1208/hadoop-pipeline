@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+
+# Env / secrets
+.env
+
+# Docker volumes data (if bind-mounted locally)
+data/
+hadoop_data/
+
+# Airflow runtime
+airflow/logs/
+airflow/airflow.db
+airflow/airflow-webserver.pid
+
+# Spark
+spark_jobs/__pycache__/
+*.parquet
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/

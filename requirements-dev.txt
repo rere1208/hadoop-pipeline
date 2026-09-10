@@ -1,0 +1,6 @@
+pytest==8.2.2
+requests-mock==1.12.1
+pyspark==3.5.9
+pandas==2.2.2
+pyarrow==16.1.0
+ruff==0.5.0

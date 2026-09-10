@@ -1,0 +1,55 @@
+stages:
+  - lint
+  - test
+  - build
+  - deploy
+
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+cache:
+  paths:
+    - .cache/pip
+
+lint:
+  stage: lint
+  image: python:3.11-slim
+  before_script:
+    - pip install ruff==0.5.0
+  script:
+    - ruff check ingestion/ spark_jobs/ etl/ airflow/dags/ tests/
+
+test:
+  stage: test
+  image: python:3.11-slim
+  before_script:
+    - apt-get update -qq && apt-get install -y --no-install-recommends openjdk-17-jre-headless > /dev/null
+    - pip install -r requirements-dev.txt
+  script:
+    - pytest tests/ -v
+
+build_airflow_image:
+  stage: build
+  image: docker:26
+  services:
+    - docker:26-dind
+  script:
+    - docker build -t hadoop-pipeline/airflow-spark:$CI_COMMIT_SHORT_SHA ./airflow
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+
+deploy_ec2:
+  stage: deploy
+  image: alpine:3.20
+  before_script:
+    - apk add --no-cache openssh-client
+  script:
+    - mkdir -p ~/.ssh
+    - echo "$EC2_SSH_KEY" > ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
+    - ssh-keyscan -H "$EC2_HOST" >> ~/.ssh/known_hosts
+    - ssh -i ~/.ssh/id_rsa "ubuntu@$EC2_HOST" "cd hadoop-pipeline && git pull && docker compose up -d --build"
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      when: manual
+  environment:
+    name: production
