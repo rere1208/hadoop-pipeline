@@ -106,7 +106,17 @@ Vérifier que tout tourne :
 docker compose ps
 ```
 
-Pour un déploiement sur AWS EC2, voir [`deploy/aws/DEPLOY.md`](deploy/aws/DEPLOY.md).
+Pour un déploiement sur AWS EC2, voir [`deploy/aws/DEPLOY.md`](deploy/aws/DEPLOY.md)
+(scripts prêts, non exécutés pour ce rendu afin d'éviter un coût d'infrastructure inutile).
+
+**Déploiement effectivement réalisé** : le pipeline a été déployé et exécuté de bout en
+bout sur un serveur Linux distant (Docker déjà installé), en dehors de la machine locale —
+tous les conteneurs sont montés `healthy`, le DAG Airflow s'est exécuté avec succès (5/5
+tâches), et le job Spark apparaît `FINISHED / SUCCEEDED` sur le ResourceManager YARN.
+Les ports en conflit avec des services déjà présents sur ce serveur partagé (`8080`,
+`9000`) ont été remappés via les variables `${AIRFLOW_WEBSERVER_PORT}` /
+`${NAMENODE_RPC_PORT}` du `docker-compose.yml`, sans impacter les autres services. Voir les
+captures d'écran en section 7.
 
 ## 5. Guide d'exécution
 
